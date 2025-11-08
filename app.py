@@ -274,6 +274,31 @@ def create_map(df):
     
     return m
 
+def make_prediction_safe(model, features, latest_row):
+    """Safely make prediction handling missing features"""
+    try:
+        # Get only available features
+        available_cols = [f for f in features if f in latest_row.index]
+        
+        if len(available_cols) == 0:
+            return None
+        
+        # Create input with available features, fill missing with 0
+        input_dict = {}
+        for feat in features:
+            if feat in latest_row.index:
+                input_dict[feat] = latest_row[feat]
+            else:
+                input_dict[feat] = 0
+        
+        input_data = pd.DataFrame([input_dict])
+        predicted_speed = model.predict(input_data)[0]
+        
+        return predicted_speed
+    except Exception as e:
+        st.error(f"Prediction error: {e}")
+        return None
+
 def main():
     # Header
     st.markdown("""
@@ -393,11 +418,13 @@ def main():
                     model = st.session_state['model']
                     features = st.session_state['features']
                     
-                    input_data = latest[features].to_frame().T.fillna(0)
-                    predicted_speed = model.predict(input_data)[0]
+                    predicted_speed = make_prediction_safe(model, features, latest)
                     
-                    st.plotly_chart(create_speed_gauge(predicted_speed, f"Predicted ({horizon} min)"), 
-                                   use_container_width=True)
+                    if predicted_speed:
+                        st.plotly_chart(create_speed_gauge(predicted_speed, f"Predicted ({horizon} min)"), 
+                                       use_container_width=True)
+                    else:
+                        st.warning("Unable to make prediction with current data")
                 else:
                     st.info("👈 Train the model first using the sidebar button")
             
@@ -428,7 +455,7 @@ def main():
             st.plotly_chart(fig, use_container_width=True)
             
             # Weather info
-            if 'temperature_c' in latest:
+            if 'temperature_c' in latest.index:
                 col1, col2, col3 = st.columns(3)
                 with col1:
                     st.metric("🌡️ Temperature", f"{latest['temperature_c']:.1f}°C")
@@ -607,35 +634,39 @@ def main():
                     st.write(f"- Hour: {latest['hour']}")
                     st.write(f"- Day: {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][latest['day_of_week']]}")
                     st.write(f"- Current Speed: {latest['speed_kmh']:.1f} km/h")
-                    if 'temperature_c' in latest:
+                    if 'temperature_c' in latest.index:
                         st.write(f"- Temperature: {latest['temperature_c']:.1f}°C")
                 
                 with col2:
-                    input_data = latest[st.session_state['features']].to_frame().T.fillna(0)
-                    predicted_speed = st.session_state['model'].predict(input_data)[0]
+                    predicted_speed = make_prediction_safe(st.session_state['model'], 
+                                                          st.session_state['features'], 
+                                                          latest)
                     
-                    st.write(f"**Prediction for {horizon} minutes ahead:**")
-                    
-                    if predicted_speed >= 40:
-                        pred_status = "Free Flow"
-                        pred_color = "green"
-                    elif predicted_speed >= 25:
-                        pred_status = "Moderate Traffic"
-                        pred_color = "orange"
+                    if predicted_speed:
+                        st.write(f"**Prediction for {horizon} minutes ahead:**")
+                        
+                        if predicted_speed >= 40:
+                            pred_status = "Free Flow"
+                            pred_color = "green"
+                        elif predicted_speed >= 25:
+                            pred_status = "Moderate Traffic"
+                            pred_color = "orange"
+                        else:
+                            pred_status = "Heavy Congestion"
+                            pred_color = "red"
+                        
+                        st.markdown(f"### Predicted Speed: {predicted_speed:.1f} km/h")
+                        st.markdown(f"**Expected Condition:** :{pred_color}[{pred_status}]")
+                        
+                        speed_change = predicted_speed - latest['speed_kmh']
+                        if speed_change > 0:
+                            st.success(f"↑ Speed expected to increase by {speed_change:.1f} km/h")
+                        elif speed_change < 0:
+                            st.warning(f"↓ Speed expected to decrease by {abs(speed_change):.1f} km/h")
+                        else:
+                            st.info("→ Speed expected to remain stable")
                     else:
-                        pred_status = "Heavy Congestion"
-                        pred_color = "red"
-                    
-                    st.markdown(f"### Predicted Speed: {predicted_speed:.1f} km/h")
-                    st.markdown(f"**Expected Condition:** :{pred_color}[{pred_status}]")
-                    
-                    speed_change = predicted_speed - latest['speed_kmh']
-                    if speed_change > 0:
-                        st.success(f"↑ Speed expected to increase by {speed_change:.1f} km/h")
-                    elif speed_change < 0:
-                        st.warning(f"↓ Speed expected to decrease by {abs(speed_change):.1f} km/h")
-                    else:
-                        st.info("→ Speed expected to remain stable")
+                        st.warning("Unable to generate prediction")
     
     # Footer
     st.markdown("---")
