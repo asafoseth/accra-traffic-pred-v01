@@ -32,25 +32,158 @@ st.markdown("""
         text-align: center;
         color: white;
     }
-    .metric-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border-left: 4px solid #667eea;
-    }
+    
+    /* Fix for metric cards - add background and better contrast */
     .stMetric {
-        background: white;
-        padding: 1rem;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        padding: 1.5rem !important;
+        border-radius: 10px !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+        border: none !important;
     }
+    
+    /* Metric label (title) */
+    .stMetric label {
+        color: white !important;
+        font-weight: 600 !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* Metric value (number) */
+    .stMetric [data-testid="stMetricValue"] {
+        color: white !important;
+        font-size: 1.8rem !important;
+        font-weight: bold !important;
+    }
+    
+    /* Metric delta (change indicator) */
+    .stMetric [data-testid="stMetricDelta"] {
+        color: #FFD700 !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Sidebar metrics - different color */
+    [data-testid="stSidebar"] .stMetric {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+    }
+    
+    [data-testid="stSidebar"] .stMetric label,
+    [data-testid="stSidebar"] .stMetric [data-testid="stMetricValue"],
+    [data-testid="stSidebar"] .stMetric [data-testid="stMetricDelta"] {
+        color: white !important;
+    }
+    
+    /* Headers */
     h1, h2, h3 {
-        color: #2c3e50;
+        color: #2c3e50 !important;
     }
-    .status-good { color: #00C851; font-weight: bold; }
-    .status-moderate { color: #ffbb33; font-weight: bold; }
-    .status-bad { color: #ff4444; font-weight: bold; }
+    
+    /* Subheaders in content area */
+    .stMarkdown h2, .stMarkdown h3 {
+        color: #667eea !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Status indicators */
+    .status-good { 
+        color: #00C851 !important; 
+        font-weight: bold !important;
+        font-size: 1.3rem !important;
+    }
+    .status-moderate { 
+        color: #ffbb33 !important; 
+        font-weight: bold !important;
+        font-size: 1.3rem !important;
+    }
+    .status-bad { 
+        color: #ff4444 !important; 
+        font-weight: bold !important;
+        font-size: 1.3rem !important;
+    }
+    
+    /* Buttons */
+    .stButton button {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border: none !important;
+        padding: 0.75rem 1.5rem !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stButton button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4) !important;
+    }
+    
+    /* Selectbox */
+    .stSelectbox label {
+        color: white !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background-color: #f0f2f6;
+        border-radius: 8px 8px 0 0;
+        padding: 10px 20px;
+        font-weight: 600;
+        color: #667eea;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        color: white !important;
+    }
+    
+    /* Dataframe styling */
+    .stDataFrame {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    /* Info/Success/Warning boxes */
+    .stAlert {
+        border-radius: 10px !important;
+        border-left-width: 5px !important;
+    }
+    
+    /* Sidebar styling */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] p {
+        color: white !important;
+    }
+    
+    /* Sidebar subheader specifically */
+    [data-testid="stSidebar"] .stMarkdown h2,
+    [data-testid="stSidebar"] .stMarkdown h3 {
+        color: white !important;
+        border-bottom: 2px solid rgba(255,255,255,0.3);
+        padding-bottom: 0.5rem;
+    }
+    
+    /* Main content area background */
+    .main .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+    
+    /* Footer styling */
+    .main .block-container > div:last-child {
+        margin-top: 3rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
